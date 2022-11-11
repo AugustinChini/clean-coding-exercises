@@ -1,11 +1,12 @@
 {
+  "extends": "./tsconfig.build.json",
+
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "rootDir": "./",
-    "outDir": "./build",
-    "esModuleInterop": true,
-    "strict": true
-  },
-  "exclude": ["test"]
+    "baseUrl": ".",
+    "paths": {
+      "@back-apps/core/*": ["packages/core/*"],
+      "@back-apps/*": ["packages/*/app"]
+    },
+    "noEmit": true
+  }
 }
