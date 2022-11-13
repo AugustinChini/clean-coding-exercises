@@ -1,4 +1,6 @@
 import CharacterNameTooLongException from "../../exceptions/character/characterNameTooLongException"
+import NotEnoughSkillsPointsException from "../../exceptions/character/notEnoughSkillsPointsException"
+import wrongCharacterPointFormatException from "../../exceptions/character/wrongCharacterPointFormatException"
 import CharacterDto from "./dto/characterDto"
 
 export default class Character {
@@ -13,7 +15,18 @@ export default class Character {
     private defensePoints: number
     private magikPoints: number
 
-    public constructor(character: CharacterDto) {
+    public constructor(character: {
+        id: string
+        name: string
+        playerId: string
+        level?: number
+        rank?: number
+        skillPoints?: number
+        healthPoints?: number
+        attackPoints?: number
+        defensePoints?: number
+        magikPoints?: number
+    }) {
         if (character.name.length > 25) {
             throw new CharacterNameTooLongException()
         }
@@ -22,64 +35,90 @@ export default class Character {
         this.playerId = character.playerId
         this.level = character.level || 1
         this.rank = character.rank || 1
-        this.skillPoints = character.skillPoints
-        this.healthPoints = character.healthPoints
-        this.attackPoints = character.attackPoints
-        this.defensePoints = character.defensePoints
-        this.magikPoints = character.magikPoints
+        this.skillPoints = character.skillPoints || 12
+        this.healthPoints = character.healthPoints || 10
+        this.attackPoints = character.attackPoints || 0
+        this.defensePoints = character.defensePoints || 0
+        this.magikPoints = character.magikPoints || 0
     }
 
     /**
      * applySkillsPoints Apply the skills points to the categories
      */
-    public applySkillsPoints(points: {
-        heath: number
-        attack: number
-        defense: number
+    public applySkillsPoints(
+        heath: number,
+        attack: number,
+        defense: number,
         magik: number
-    }) {
-        let remainingSkills = this.skillPoints
-        remainingSkills -= this.addHealthPoints(points.heath)
-        remainingSkills -= this.addAttackPoints(points.attack)
-        remainingSkills -= this.addDefensePoints(points.defense)
-        remainingSkills -= this.addMagikPoints(points.magik)
+    ): void {
+        this.addHealthPoints(heath)
+        this.addAttackPoints(attack)
+        this.addDefensePoints(defense)
+        this.addMagikPoints(magik)
     }
 
     /**
      * Check the number of skills points to spend to have Npoints in a category
      */
     private getSkillPointToSpend(pointsToAdd: number) {
-        let toSpend = 0
-        for (let index = 0; index < pointsToAdd; index++) {
-            toSpend +=  Math.ceil(index / 5) : 1;
+        if (pointsToAdd >= 0) {
+            let toSpend = 0
+            // apply the SP spending rule
+            for (let index = 0; index < pointsToAdd; index++) {
+                toSpend += toSpend ? Math.ceil(index / 5) : 1
+            }
+            // check if there is enough SP left
+            if (toSpend > this.skillPoints)
+                throw new NotEnoughSkillsPointsException()
+
+            return toSpend
         }
+        throw new wrongCharacterPointFormatException()
     }
     /**
      * addHealthPoints increase the Heath points according to the skill point rule
-     * @return {number} the skills points left
      */
-    public addHealthPoints(pointsToAdd: number): number {}
+    public addHealthPoints(pointsToAdd: number): void {
+        // if enough skills
+        if (pointsToAdd <= this.skillPoints) {
+            // add heath points
+            this.healthPoints = pointsToAdd
+            // sub skills
+            this.skillPoints -= pointsToAdd
+        } else throw new NotEnoughSkillsPointsException()
+    }
 
     /**
      * addAttackPoints increase the Attack points according to the skill point rule
-     * @return {number} the skills points left
      */
-    public addAttackPoints(pointsToAdd: number): number {}
+    public addAttackPoints(pointsToAdd: number): void {
+        const skillsPointsToSpend = this.getSkillPointToSpend(pointsToAdd)
+        this.attackPoints = pointsToAdd
+        this.skillPoints -= skillsPointsToSpend
+    }
+
     /**
      * addDefensePoints increase the Defense points according to the skill point rule
-     * @return {number} the skills points left
      */
-    public addDefensePoints(pointsToAdd: number): number {}
+    public addDefensePoints(pointsToAdd: number): void {
+        const skillsPointsToSpend = this.getSkillPointToSpend(pointsToAdd)
+        this.defensePoints = pointsToAdd
+        this.skillPoints -= skillsPointsToSpend
+    }
+
     /**
      * addMagikPoints increase the Magik points according to the skill point rule
-     * @return {number} the skills points left
      */
-    public addMagikPoints(pointsToAdd: number): number {}
+    public addMagikPoints(pointsToAdd: number): void {
+        const skillsPointsToSpend = this.getSkillPointToSpend(pointsToAdd)
+        this.magikPoints = pointsToAdd
+        this.skillPoints -= skillsPointsToSpend
+    }
 
     /**
      * toDto return a readOnly deep copy of the character
      */
-    public toDto() {
+    public toDto(): CharacterDto {
         return new CharacterDto({
             id: this.id,
             name: this.name,
