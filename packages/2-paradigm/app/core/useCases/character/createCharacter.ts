@@ -9,7 +9,6 @@ import CreateCharacterCommand from "./types/createCharacterCommand"
 export default class CreateCharacter {
     private characterDataSource: ICharacterDataSource
     private playerDataSource: IPlayerDataSource
-
     private uuidGenerator: IUuidGenerator
 
     constructor(
