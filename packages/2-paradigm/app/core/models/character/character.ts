@@ -1,6 +1,6 @@
-import CharacterNameTooLongException from "../../exceptions/character/characterNameTooLongException"
-import NotEnoughSkillsPointsException from "../../exceptions/character/notEnoughSkillsPointsException"
-import wrongCharacterPointFormatException from "../../exceptions/character/wrongCharacterPointFormatException"
+import CharacterNameTooLongException from "../../exceptions/characterNameTooLongException"
+import NotEnoughSkillsPointsException from "../../exceptions/notEnoughSkillsPointsException"
+import wrongCharacterPointFormatException from "../../exceptions/wrongCharacterPointFormatException"
 import CharacterDto from "./dto/characterDto"
 
 export default class Character {
