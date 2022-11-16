@@ -5,9 +5,9 @@ export default class Player {
     private id: string
     private characters: Array<Character>
 
-    public constructor(id: string, characters: Array<Character>) {
-        this.id = id
-        this.characters = characters
+    public constructor(player: PlayerDto) {
+        this.id = player.id
+        this.characters = player.characters.map((cDto) => new Character(cDto))
     }
 
     toDto(): PlayerDto {

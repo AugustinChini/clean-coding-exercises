@@ -1,7 +1,9 @@
 import CharacterDto from "../../../core/models/character/dto/characterDto"
 import ICharacterDataSource from "../../../core/useCases/character/interfaces/ICharacterDataSource"
 
-export default class CharacterDataSource implements ICharacterDataSource {
+export default class InMemoryCharacterDataSource
+    implements ICharacterDataSource
+{
     private charactersList: Array<CharacterDto> = []
 
     /**
@@ -12,12 +14,5 @@ export default class CharacterDataSource implements ICharacterDataSource {
     public create(characterDto: CharacterDto): Promise<void> {
         this.charactersList.push(characterDto)
         return Promise.resolve()
-    }
-
-    /**
-     * getAll Get all the charcters
-     */
-    public getAll(): Promise<Array<CharacterDto>> {
-        return Promise.resolve(this.charactersList)
     }
 }
