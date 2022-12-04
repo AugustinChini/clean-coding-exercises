@@ -1,9 +1,11 @@
 import Player from "../../../core/models/player/player"
 import PlayerDto from "../../../core/models/player/dto/player"
-import IPlayerDataSource from "../../../core/useCases/character/interfaces/IPlayerDataSource"
+import IPlayerReadRepository from "../../../core/useCases/character/interfaces/IPlayerReadRepository"
 import PlayerNotFoundExecption from "../../../core/exceptions/playerNotFoundExeception"
 
-export default class InMemoryPlayerDataSource implements IPlayerDataSource {
+export default class inMemoryPlayerReadRepository
+    implements IPlayerReadRepository
+{
     private playersList: Array<PlayerDto> = []
 
     /**

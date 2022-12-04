@@ -1,34 +1,44 @@
-import UuidGenerator from "../../app/adapters/primary/common/uuidGenerator"
-import InMemoryCharacterDataSource from "../../app/adapters/secondary/inMemory/inMemoryCharacterDataSource"
-import InMemoryPlayerDataSource from "../../app/adapters/secondary/inMemory/inMemoryPlayerDataSource"
-import ICharacterDataSource from "../../app/core/useCases/character/interfaces/ICharacterDataSource"
-import IPlayerDataSource from "../../app/core/useCases/character/interfaces/IPlayerDataSource"
+import { randomUUID } from "crypto"
+import inMemoryCharacterWriteRepository from "../../app/adapters/secondary/inMemory/inMemoryCharacterWriteRepository"
+import inMemoryPlayerReadRepository from "../../app/adapters/secondary/inMemory/inMemoryPlayerReadRepository"
+import ICharacterWriteRepository from "../../app/core/useCases/character/interfaces/ICharacterWriteRepository"
+import IPlayerReadRepository from "../../app/core/useCases/character/interfaces/IPlayerReadRepository"
 import CreateCharacter from "../../app/core/useCases/character/createCharacter"
-import CreateCharacterCommand from "packages/2-paradigm/app/core/useCases/character/types/createCharacterCommand"
+import CreateCharacterCommand from "../../app/core/useCases/character/types/createCharacterCommand"
+import inMemoryCharacterReadRepository from "../../app/adapters/secondary/inMemory/inMemoryCharacterReadRepository"
+import ICharacterReadRepository from "../../app/core/useCases/character/interfaces/ICharacterReadRepository"
 
 describe("Create character", () => {
-    const inMemoryCharacterDataSource: ICharacterDataSource =
-        new InMemoryCharacterDataSource()
-    const inMemoryPlayerDataSource: IPlayerDataSource =
-        new InMemoryPlayerDataSource()
+    const characterWriteRepository: ICharacterWriteRepository =
+        new inMemoryCharacterWriteRepository()
+    const characterReadRepository: ICharacterReadRepository =
+        new inMemoryCharacterReadRepository()
+    const playerReadRepository: IPlayerReadRepository =
+        new inMemoryPlayerReadRepository()
 
-    test("a new character should have 12 SP, 10 HP, 0 AP, 0 DP, 0 MP", async () => {
-        const newUser: CreateCharacterCommand = {
-            playerId: "XXX",
-            name: "John Doe",
-            healthPoints: 0,
+    test("a new character should be level 1, rank 1 and have 12 SP, 10 HP, 0 AP, 0 DP, 0 MP", async () => {
+        const characterCommand: CreateCharacterCommand = {
+            playerId: randomUUID(),
+            name: "Lyanna Mormont",
+            healthPoints: 10,
             defensePoints: 0,
             attackPoints: 0,
             magikPoints: 0,
         }
 
         const createCharacterUseCase = new CreateCharacter(
-            inMemoryCharacterDataSource,
-            inMemoryPlayerDataSource,
-            new UuidGenerator()
+            characterWriteRepository,
+            playerReadRepository
         )
 
-        await createCharacterUseCase.execute(newUser)
-        expect(mockUserDataSource.create).toBeCalledTimes(1)
+        const createdCharacter = await createCharacterUseCase.execute(
+            characterCommand
+        )
+
+        const newCharacter = await characterReadRepository.read(
+            createdCharacter.toDto().id
+        )
+
+        expect(createdCharacter).toEqual(newCharacter)
     })
 })

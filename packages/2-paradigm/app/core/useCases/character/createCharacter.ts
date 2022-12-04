@@ -1,30 +1,25 @@
-import IUuidGenerator from "../../common/IUuidGenerator"
-import CharacterLimitException from "../../exceptions/characterLimitException"
-import CharacterNameAlreadyExistException from "../../exceptions/characterNameAlreadyExistException"
+import crypto from "crypto"
 import Character from "../../models/character/character"
-import ICharacterDataSource from "./interfaces/ICharacterDataSource"
-import IPlayerDataSource from "./interfaces/IPlayerDataSource"
+import ICharacterWriteRepository from "./interfaces/ICharacterWriteRepository"
+import IPlayerReadRepository from "./interfaces/IPlayerReadRepository"
 import CreateCharacterCommand from "./types/createCharacterCommand"
 
 export default class CreateCharacter {
-    private characterDataSource: ICharacterDataSource
-    private playerDataSource: IPlayerDataSource
-    private uuidGenerator: IUuidGenerator
+    private characterWriteRepository: ICharacterWriteRepository
+    private playerReadRepository: IPlayerReadRepository
 
     constructor(
-        characterDataSource: ICharacterDataSource,
-        playerDataSource: IPlayerDataSource,
-        uuid4Generator: IUuidGenerator
+        characterWriteRepository: ICharacterWriteRepository,
+        playerReadRepository: IPlayerReadRepository
     ) {
-        this.characterDataSource = characterDataSource
-        this.playerDataSource = playerDataSource
-        this.uuidGenerator = uuid4Generator
+        this.characterWriteRepository = characterWriteRepository
+        this.playerReadRepository = playerReadRepository
     }
 
-    async execute(command: CreateCharacterCommand): Promise<void> {
+    async execute(command: CreateCharacterCommand): Promise<Character> {
         // create the character
         const newCharacter = new Character({
-            id: this.uuidGenerator.generate(),
+            id: crypto.randomUUID(),
             name: command.name,
             playerId: command.playerId,
         })
@@ -37,18 +32,13 @@ export default class CreateCharacter {
             command.magikPoints
         )
 
-        const playerDto = (
-            await this.playerDataSource.read(command.playerId)
-        ).toDto()
+        // get player
+        const player = await this.playerReadRepository.read(command.playerId)
+        // check if it's possible to create a new character according to the player rules
+        player.canCreateCharacter(newCharacter)
 
-        // check if there is less than 10 characters
-        if (playerDto.characters.length >= 10) {
-            throw new CharacterLimitException()
-        } else if (playerDto.characters.find((c) => c.name === command.name)) {
-            // check if the name already exist
-            throw new CharacterNameAlreadyExistException()
-        }
         // save
-        await this.characterDataSource.create(newCharacter.toDto())
+        await this.characterWriteRepository.create(newCharacter.toDto())
+        return newCharacter
     }
 }
