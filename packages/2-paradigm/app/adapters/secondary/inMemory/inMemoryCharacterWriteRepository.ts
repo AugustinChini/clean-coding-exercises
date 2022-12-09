@@ -1,10 +1,14 @@
 import CharacterDto from "../../../core/models/character/dto/characterDto"
 import ICharacterWriteRepository from "../../../core/useCases/character/interfaces/ICharacterWriteRepository"
 
-export default class inMemoryCharacterWriteRepository
+export default class InMemoryCharacterWriteRepository
     implements ICharacterWriteRepository
 {
-    private charactersList: Array<CharacterDto> = []
+    private charactersList: Array<CharacterDto>
+
+    constructor(context: Array<CharacterDto>) {
+        this.charactersList = context
+    }
 
     /**
      * Create a new caracter

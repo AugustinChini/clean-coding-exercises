@@ -79,13 +79,15 @@ export default class Character {
      * addHealthPoints increase the Heath points according to the skill point rule
      */
     public addHealthPoints(pointsToAdd: number): void {
+        const toSubFromSkills = pointsToAdd - 10
         // if enough skills
-        if (pointsToAdd <= this.skillPoints) {
+        if (toSubFromSkills > 0 && toSubFromSkills <= this.skillPoints) {
             // add heath points
             this.healthPoints = pointsToAdd
             // sub skills
             this.skillPoints -= pointsToAdd
-        } else throw new NotEnoughSkillsPointsException()
+        } else if (toSubFromSkills > this.skillPoints)
+            throw new NotEnoughSkillsPointsException()
     }
 
     /**

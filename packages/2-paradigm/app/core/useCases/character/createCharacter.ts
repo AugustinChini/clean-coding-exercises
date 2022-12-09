@@ -19,7 +19,7 @@ export default class CreateCharacter {
     async execute(command: CreateCharacterCommand): Promise<Character> {
         // create the character
         const newCharacter = new Character({
-            id: crypto.randomUUID(),
+            id: command.id,
             name: command.name,
             playerId: command.playerId,
         })
