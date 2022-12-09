@@ -85,7 +85,7 @@ export default class Character {
             // add heath points
             this.healthPoints = pointsToAdd
             // sub skills
-            this.skillPoints -= pointsToAdd
+            this.skillPoints -= toSubFromSkills
         } else if (toSubFromSkills > this.skillPoints)
             throw new NotEnoughSkillsPointsException()
     }

@@ -37,8 +37,9 @@ export default class CreateCharacter {
         // check if it's possible to create a new character according to the player rules
         player.canCreateCharacter(newCharacter)
 
-        // save
+        // save character
         await this.characterWriteRepository.create(newCharacter.toDto())
+        // TODO add a line player.addCharacterToCollection(charcterDto)
         return newCharacter
     }
 }
