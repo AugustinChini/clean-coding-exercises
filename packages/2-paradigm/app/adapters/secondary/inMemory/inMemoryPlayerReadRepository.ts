@@ -1,10 +1,16 @@
 import Player from "../../../core/models/player/player"
 import PlayerDto from "../../../core/models/player/dto/player"
-import IPlayerDataSource from "../../../core/useCases/character/interfaces/IPlayerDataSource"
+import IPlayerReadRepository from "../../../core/useCases/character/interfaces/IPlayerReadRepository"
 import PlayerNotFoundExecption from "../../../core/exceptions/playerNotFoundExeception"
 
-export default class InMemoryPlayerDataSource implements IPlayerDataSource {
-    private playersList: Array<PlayerDto> = []
+export default class InMemoryPlayerReadRepository
+    implements IPlayerReadRepository
+{
+    private playersList: Array<PlayerDto>
+
+    constructor(context: Array<PlayerDto>) {
+        this.playersList = context
+    }
 
     /**
      * Return a player by id

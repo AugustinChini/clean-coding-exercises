@@ -1,4 +1,5 @@
 type CreateCharacterCommand = {
+    id: string
     name: string
     healthPoints: number
     attackPoints: number
